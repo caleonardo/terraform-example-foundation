@@ -61,7 +61,7 @@ variable "jenkins_agent_gce_ssh_pub_key" {
 variable "jenkins_sa_email" {
   description = "Email for Jenkins Agent service account."
   type        = string
-  default     = "jenkins-agent-gce-sa"
+  default     = "jenkins-agent-gce"
 }
 
 variable "jenkins_master_ip_addresses" {

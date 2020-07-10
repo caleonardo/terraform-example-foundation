@@ -42,8 +42,8 @@ module "cicd_project" {
 *******************************************/
 resource "google_service_account" "jenkins_agent_gce_sa" {
   project      = module.cicd_project.project_id
-  account_id   = var.jenkins_sa_email
-  display_name = "CFT Jenkins Agent GCE custom Service Account"
+  account_id   = "sa-${var.jenkins_sa_email}"
+  display_name = "Jenkins Agent (GCE instance) custom Service Account"
 }
 
 resource "google_compute_instance" "jenkins_agent_gce_instance" {
@@ -69,7 +69,7 @@ resource "google_compute_instance" "jenkins_agent_gce_instance" {
     }
   }
 
-  // Adding ssh public keys to the metadata, so the Jenkins Master can connect
+  // Adding ssh public keys to the GCE instance metadata, so the Jenkins Master can connect to this Agent
   metadata = {
     enable-oslogin = "false"
     ssh-keys       = var.jenkins_agent_gce_ssh_pub_key
@@ -96,13 +96,14 @@ resource "google_compute_instance" "jenkins_agent_gce_instance" {
   Jenkins Agent GCE Firewall rules
 *******************************************/
 
-resource "google_compute_firewall" "allow_ssh_to_jenkins_agent_fw" {
+resource "google_compute_firewall" "fw_allow_ssh_into_jenkins_agent" {
   project       = module.cicd_project.project_id
-  name          = "allow-ssh-to-jenkins-agents"
+  name          = "fw-${google_compute_network.jenkins_agents.name}-1000-i-a-all-all-tcp-22"
   description   = "Allow the Jenkins Master (Client) to connect to the Jenkins Agents (Servers) using SSH."
   network       = google_compute_network.jenkins_agents.name
   source_ranges = var.jenkins_master_ip_addresses
   target_tags   = local.jenkins_gce_fw_tags
+  priority      = 1000
 
   allow {
     protocol = "tcp"
@@ -112,7 +113,7 @@ resource "google_compute_firewall" "allow_ssh_to_jenkins_agent_fw" {
 
 resource "google_compute_network" "jenkins_agents" {
   project = module.cicd_project.project_id
-  name    = "jenkins-agents-network"
+  name    = "vpc-b-jenkinsagents"
 }
 
 // TODO(caleonardo): add an option to create a Jenkins Master in GCP, in case the user doesn't have one on-prem
