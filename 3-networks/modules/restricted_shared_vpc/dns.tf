@@ -15,6 +15,20 @@
  */
 
 /******************************************
+  DNS Hub Project
+*****************************************/
+
+data "google_projects" "dns_hub" {
+  filter = "labels.application_name=prj-dns-hub"
+}
+
+data "google_compute_network" "vpc_dns_hub" {
+  name    = "vpc-dns-hub"
+  project = data.google_projects.dns_hub.projects[0].project_id
+}
+
+
+/******************************************
   Default DNS Policy
  *****************************************/
 
@@ -37,7 +51,7 @@ module "restricted_googleapis" {
   version     = "~> 3.0"
   project_id  = var.project_id
   type        = "private"
-  name        = "restricted-googleapis"
+  name        = "dz-${var.environment_code}-shared-restricted-apis"
   domain      = "googleapis.com."
   description = "Private DNS zone to configure restricted.googleapis.com"
 
@@ -70,7 +84,7 @@ module "restricted_gcr" {
   version     = "~> 3.0"
   project_id  = var.project_id
   type        = "private"
-  name        = "restricted-gcr"
+  name        = "dz-${var.environment_code}-shared-restricted-gcr"
   domain      = "gcr.io."
   description = "Private DNS zone to configure gcr.io"
 
@@ -92,4 +106,22 @@ module "restricted_gcr" {
       records = ["199.36.153.4", "199.36.153.5", "199.36.153.6", "199.36.153.7"]
     },
   ]
+}
+
+/******************************************
+ Creates DNS Peering to DNS HUB
+*****************************************/
+module "peering_zone" {
+  source      = "terraform-google-modules/cloud-dns/google"
+  version     = "~> 3.0"
+  project_id  = var.project_id
+  type        = "peering"
+  name        = "dz-${var.environment_code}-shared-restricted-to-dns-hub"
+  domain      = var.domain
+  description = "Private DNS peering zone."
+
+  private_visibility_config_networks = [
+    module.main.network_self_link
+  ]
+  target_network = data.google_compute_network.vpc_dns_hub.self_link
 }

@@ -20,7 +20,7 @@
 
 module "org_audit_logs" {
   source                      = "terraform-google-modules/project-factory/google"
-  version                     = "~> 7.0"
+  version                     = "~> 8.0"
   random_project_id           = "true"
   impersonate_service_account = var.terraform_service_account
   default_service_account     = "depriviledge"
@@ -28,6 +28,7 @@ module "org_audit_logs" {
   org_id                      = var.org_id
   billing_account             = var.billing_account
   folder_id                   = google_folder.logs.id
+  skip_gcloud_download        = var.skip_gcloud_download
   activate_apis               = ["logging.googleapis.com", "bigquery.googleapis.com"]
 
   labels = {
@@ -38,7 +39,7 @@ module "org_audit_logs" {
 
 module "org_billing_logs" {
   source                      = "terraform-google-modules/project-factory/google"
-  version                     = "~> 7.0"
+  version                     = "~> 8.0"
   random_project_id           = "true"
   impersonate_service_account = var.terraform_service_account
   default_service_account     = "depriviledge"
@@ -46,6 +47,7 @@ module "org_billing_logs" {
   org_id                      = var.org_id
   billing_account             = var.billing_account
   folder_id                   = google_folder.logs.id
+  skip_gcloud_download        = var.skip_gcloud_download
   activate_apis               = ["logging.googleapis.com", "bigquery.googleapis.com"]
 
   labels = {
@@ -60,7 +62,7 @@ module "org_billing_logs" {
 
 module "org_secrets" {
   source                      = "terraform-google-modules/project-factory/google"
-  version                     = "~> 7.0"
+  version                     = "~> 8.0"
   random_project_id           = "true"
   impersonate_service_account = var.terraform_service_account
   default_service_account     = "depriviledge"
@@ -68,6 +70,7 @@ module "org_secrets" {
   org_id                      = var.org_id
   billing_account             = var.billing_account
   folder_id                   = google_folder.logs.id
+  skip_gcloud_download        = var.skip_gcloud_download
   activate_apis               = ["logging.googleapis.com", "secretmanager.googleapis.com"]
 
   labels = {
@@ -118,5 +121,35 @@ module "scc_notifications" {
   labels = {
     environment      = "prod"
     application_name = "prj-scc-notification"
+  }
+}
+
+/******************************************
+  Project for DNS Hub
+*****************************************/
+
+module "dns_hub" {
+  source                      = "terraform-google-modules/project-factory/google"
+  version                     = "~> 8.0"
+  random_project_id           = "true"
+  impersonate_service_account = var.terraform_service_account
+  default_service_account     = "depriviledge"
+  name                        = "prj-dns-hub"
+  org_id                      = var.org_id
+  billing_account             = var.billing_account
+  folder_id                   = google_folder.common.id
+  skip_gcloud_download        = var.skip_gcloud_download
+
+  activate_apis = [
+    "compute.googleapis.com",
+    "dns.googleapis.com",
+    "servicenetworking.googleapis.com",
+    "logging.googleapis.com",
+    "cloudresourcemanager.googleapis.com"
+  ]
+
+  labels = {
+    environment      = "prod"
+    application_name = "prj-dns-hub"
   }
 }
