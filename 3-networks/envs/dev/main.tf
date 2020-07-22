@@ -27,7 +27,7 @@ locals {
 *****************************************/
 
 data "google_projects" "restricted_host_project" {
-  filter = "labels.application_name=restricted-shared-vpc-host-${local.env}"
+  filter = "labels.application_name=restricted-shared-vpc-host-${local.env}  lifecycleState=ACTIVE"
 }
 
 data "google_project" "restricted_host_project" {
@@ -35,7 +35,7 @@ data "google_project" "restricted_host_project" {
 }
 
 data "google_projects" "private_project" {
-  filter = "labels.application_name=base-shared-vpc-host-${local.env}"
+  filter = "labels.application_name=base-shared-vpc-host-${local.env}  lifecycleState=ACTIVE"
 }
 
 /******************************************
@@ -63,7 +63,7 @@ module "restricted_shared_vpc" {
       subnet_ip             = "10.0.160.0/21"
       subnet_region         = var.default_region1
       subnet_private_access = "true"
-      subnet_flow_logs      = "false"
+      subnet_flow_logs      = var.subnetworks_enable_logging
       description           = "First ${local.env} subnet example."
     },
     {
@@ -71,7 +71,7 @@ module "restricted_shared_vpc" {
       subnet_ip             = "10.0.168.0/21"
       subnet_region         = var.default_region2
       subnet_private_access = "true"
-      subnet_flow_logs      = "false"
+      subnet_flow_logs      = var.subnetworks_enable_logging
       description           = "Second ${local.env} subnet example."
     }
   ]
@@ -144,7 +144,7 @@ module "private_shared_vpc" {
       subnet_ip             = "10.0.128.0/21"
       subnet_region         = var.default_region1
       subnet_private_access = "true"
-      subnet_flow_logs      = "false"
+      subnet_flow_logs      = var.subnetworks_enable_logging
       description           = "First ${local.env} subnet example."
     },
     {
@@ -152,7 +152,7 @@ module "private_shared_vpc" {
       subnet_ip             = "10.0.136.0/21"
       subnet_region         = var.default_region2
       subnet_private_access = "true"
-      subnet_flow_logs      = "false"
+      subnet_flow_logs      = var.subnetworks_enable_logging
       description           = "Second ${local.env} subnet example."
     }
   ]
