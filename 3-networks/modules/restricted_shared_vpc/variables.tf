@@ -21,7 +21,7 @@ variable "org_id" {
 
 variable "access_context_manager_policy_id" {
   type        = number
-  description = "The id of the default Access Context Manager policy. Can be obtained by running `gcloud access-context-manager policies list --organization YOUR-ORGANIZATION_ID`."
+  description = "The id of the default Access Context Manager policy. Can be obtained by running `gcloud access-context-manager policies list --organization YOUR-ORGANIZATION_ID --format=\"value(name)\"`."
 }
 
 variable "project_id" {
@@ -104,7 +104,7 @@ variable "dns_enable_logging" {
 
 variable "firewall_enable_logging" {
   type        = bool
-  description = "Toggle firewall logginglogging for VPC Firewalls."
+  description = "Toggle firewall logging for VPC Firewalls."
   default     = true
 }
 
@@ -126,7 +126,7 @@ variable "windows_activation_enabled" {
 
 variable "optional_fw_rules_enabled" {
   type        = bool
-  description = "Toggle creation of optional firewall rules."
+  description = "Toggle creation of optional firewall rules: IAP SSH, IAP RDP and Internal & Global load balancing health check and load balancing IP ranges."
   default     = false
 }
 
@@ -138,4 +138,10 @@ variable "members" {
 variable "restricted_services" {
   type        = list(string)
   description = "List of services to restrict."
+}
+
+variable "parent_folder" {
+  description = "Optional - if using a folder for testing."
+  type        = string
+  default     = ""
 }

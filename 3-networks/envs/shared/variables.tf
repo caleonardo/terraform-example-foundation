@@ -14,17 +14,22 @@
  * limitations under the License.
  */
 
+variable "org_id" {
+  type        = string
+  description = "Organization ID"
+}
+
 variable "terraform_service_account" {
   type        = string
   description = "Service account email of the account to impersonate to run Terraform."
 }
 
-variable "dns_default_region1" {
+variable "default_region1" {
   type        = string
   description = "First subnet region for DNS Hub network."
 }
 
-variable "dns_default_region2" {
+variable "default_region2" {
   type        = string
   description = "Second subnet region for DNS Hub network."
 }
@@ -55,4 +60,10 @@ variable "bgp_asn_dns" {
 variable "target_name_server_addresses" {
   description = "List of target name servers for forwarding zone."
   type        = list(string)
+}
+
+variable "parent_folder" {
+  description = "Optional - if using a folder for testing."
+  type        = string
+  default     = ""
 }

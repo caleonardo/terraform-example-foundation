@@ -20,6 +20,12 @@ locals {
   restricted_project_id     = data.google_projects.restricted_host_project.projects[0].project_id
   restricted_project_number = data.google_project.restricted_host_project.number
   private_project_id        = data.google_projects.private_host_project.projects[0].project_id
+  parent_id                 = var.parent_folder != "" ? "folders/${var.parent_folder}" : "organizations/${var.org_id}"
+}
+
+data "google_active_folder" "env" {
+  display_name = local.env
+  parent       = local.parent_id
 }
 
 /******************************************
@@ -27,7 +33,7 @@ locals {
 *****************************************/
 
 data "google_projects" "restricted_host_project" {
-  filter = "labels.application_name=restricted-shared-vpc-host-${local.env} lifecycleState=ACTIVE"
+  filter = "parent.id:${split("/", data.google_active_folder.env.name)[1]} labels.application_name=restricted-shared-vpc-host labels.environment=${local.env} lifecycleState=ACTIVE"
 }
 
 data "google_project" "restricted_host_project" {
@@ -35,7 +41,7 @@ data "google_project" "restricted_host_project" {
 }
 
 data "google_projects" "private_host_project" {
-  filter = "labels.application_name=base-shared-vpc-host-${local.env} lifecycleState=ACTIVE"
+  filter = "parent.id:${split("/", data.google_active_folder.env.name)[1]} labels.application_name=private-shared-vpc-host labels.environment=${local.env} lifecycleState=ACTIVE"
 }
 
 /******************************************
@@ -51,6 +57,7 @@ module "restricted_shared_vpc" {
   members                          = ["serviceAccount:${var.terraform_service_account}"]
   private_service_cidr             = "10.0.48.0/20"
   org_id                           = var.org_id
+  parent_folder                    = var.parent_folder
   nat_enabled                      = false
   bgp_asn_subnet                   = "64514"
   default_region1                  = var.default_region1
@@ -131,6 +138,8 @@ module "private_shared_vpc" {
   environment_code           = local.environment_code
   vpc_label                  = "private"
   private_service_cidr       = "10.0.16.0/20"
+  org_id                     = var.org_id
+  parent_folder              = var.parent_folder
   nat_enabled                = true
   nat_bgp_asn                = "64514"
   default_region1            = var.default_region1

@@ -14,28 +14,27 @@
  * limitations under the License.
  */
 
-locals {
-  env           = "dev"
-  business_code = "bu2"
-}
-
-module "example_single_project" {
-  source = "../../modules/single_project"
-
+module "restricted_shared_vpc_project" {
+  source                      = "../../modules/single_project"
+  impersonate_service_account = var.terraform_service_account
   org_id                      = var.org_id
   billing_account             = var.billing_account
-  impersonate_service_account = var.terraform_service_account
-  environment                 = local.env
-  env_code                    = var.env_code
+  folder_id                   = data.google_active_folder.env.name
   skip_gcloud_download        = var.skip_gcloud_download
+  environment                 = "nonprod"
+  env_code                    = "n"
+  vpc_type                    = "restricted"
 
-  folder_id = var.parent_folder
+  activate_apis                      = ["accesscontextmanager.googleapis.com"]
+  vpc_service_control_attach_enabled = "true"
+  vpc_service_control_perimeter_name = "accessPolicies/${var.policy_id}/servicePerimeters/${var.perimeter_name}"
 
   # Metadata
-  project_prefix    = "prj-${local.business_code}-${var.env_code}-sample-single"
-  application_name  = "${local.business_code}-sample-single"
+  project_prefix    = "bu1-n-sample-restricted"
+  application_name  = "bu1-sample-application"
   billing_code      = "1234"
   primary_contact   = "example@example.com"
   secondary_contact = "example2@example.com"
-  business_code     = local.business_code
+  business_code     = "bu1"
 }
+

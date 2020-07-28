@@ -19,33 +19,17 @@ module "base_shared_vpc_project" {
   impersonate_service_account = var.terraform_service_account
   org_id                      = var.org_id
   billing_account             = var.billing_account
-  folder_id                   = var.parent_folder
+  folder_id                   = data.google_active_folder.env.name
   skip_gcloud_download        = var.skip_gcloud_download
-  environment                 = local.env
-  env_code                    = var.env_code
-  vpc_type                    = "base"
+  environment                 = "nonprod"
+  env_code                    = "n"
+  vpc_type                    = "private"
 
   # Metadata
-  project_prefix    = "prj-${local.business_code}-${var.env_code}-sample-${var.vpc_type}"
-  application_name  = "prj-${local.business_code}-sample-${var.vpc_type}-vpc"
+  project_prefix    = "bu1-n-sample-private"
+  application_name  = "bu1-sample-application"
   billing_code      = "1234"
   primary_contact   = "example@example.com"
   secondary_contact = "example2@example.com"
-  business_code     = local.business_code
+  business_code     = "bu1"
 }
-
-#   # Network Setting (Optional)
-#   enable_networking    = true
-#   subnet_ip_cidr_range = "10.3.0.0/16"
-#   subnet_secondary_ranges = [{
-#     range_name    = "gke-pod",
-#     ip_cidr_range = "10.4.0.0/16"
-#     }, {
-#     range_name    = "gke-svc",
-#     ip_cidr_range = "10.5.0.0/16"
-#   }]
-
-#   # DNS Setting (Optional)
-#   enable_private_dns = true
-#   domain             = var.domain
-# }
